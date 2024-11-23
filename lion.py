@@ -2,6 +2,7 @@ import re
 from collections import Counter
 import pandas as pd
 from docx import Document
+import matplotlib.pyplot as plt
 
 # Функция для чтения текста из .docx файла
 def read_docx(file_path):
@@ -43,21 +44,37 @@ def analyze_text_from_docx(file_path):
     
     return word_df, letter_df
 
-# Сохранение статистики в файл
-def save_statistics_to_file(word_df, letter_df):
-    word_df.to_csv("word_statistics.csv", index=False, encoding="utf-8-sig")
-    letter_df.to_csv("letter_statistics.csv", index=False, encoding="utf-8-sig")
-    print("Статистика успешно сохранена в файлы word_statistics.csv и letter_statistics.csv.")
+# Функция для построения гистограммы частоты букв
+def plot_letter_histogram(letter_df):
+    plt.figure(figsize=(10, 6))
+    plt.bar(letter_df["Буква"], letter_df["Частота встреч в %"], color="skyblue")
+    plt.xlabel("Буквы", fontsize=12)
+    plt.ylabel("Частота встречаемости (%)", fontsize=12)
+    plt.title("Частота встречаемости букв", fontsize=14)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.show()
+
+# Функция для построения гистограммы частоты слов
+def plot_word_histogram(word_df, top_n=10):
+    # Сортировка по частоте и выбор top_n слов
+    top_words = word_df.sort_values(by="Частота встреч в раз", ascending=False).head(top_n)
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(top_words["Слово"], top_words["Частота встреч в раз"], color="lightgreen")
+    plt.xlabel("Слова", fontsize=12)
+    plt.ylabel("Частота встречаемости (раз)", fontsize=12)
+    plt.title(f"Топ-{top_n} наиболее частых слов", fontsize=14)
+    plt.xticks(rotation=45)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.show()
 
 # Основной код
 file_path = "lion.docx"  # Укажите имя вашего .docx файла
 word_df, letter_df = analyze_text_from_docx(file_path)
 
-# Печать результатов
-print("Статистика по словам:")
-print(word_df)
-print("\nСтатистика по буквам:")
-print(letter_df)
+# Построение гистограмм
+print("Построение гистограммы для букв...")
+plot_letter_histogram(letter_df)
 
-# Сохранение результатов в файл
-save_statistics_to_file(word_df, letter_df)
+print("Построение гистограммы для слов...")
+plot_word_histogram(word_df, top_n=10)
