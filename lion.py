@@ -4,7 +4,7 @@ import pandas as pd
 from docx import Document
 import matplotlib.pyplot as plt
 
-# Функция для чтения текста из .docx файла
+#чтение текста из .docx файла
 def read_docx(file_path):
     doc = Document(file_path)
     text = []
@@ -12,30 +12,30 @@ def read_docx(file_path):
         text.append(paragraph.text)
     return "\n".join(text)
 
-# Функция для анализа текста
+#анализ текста
 def analyze_text_from_docx(file_path):
     text = read_docx(file_path).lower()
     
-    # Удаление лишних символов и разделение на слова
+    #удаление лишних символов и разделение на слова
     words = re.findall(r'\b\w+\b', text)
     
-    # Подсчет частоты слов
+    #подсчет частоты слов через контер
     word_count = Counter(words)
     total_words = sum(word_count.values())
     
-    # Подсчет частоты букв
-    letters = re.findall(r'[а-яёa-z]', text)  # Подходит для русского и английского текста
+    #подсчет частоты букв
+    letters = re.findall(r'[а-яёa-z]', text)  #может в тексте есть другие буквы кроме русских поэтому ещё и подсчёт английских
     letter_count = Counter(letters)
     total_letters = sum(letter_count.values())
     
-    # Форматирование таблицы по словам
+    #форматирование таблицы по словам
     word_stats = [
         {"Слово": word, "Частота встреч в раз": count, "Частота встреч в %": round((count / total_words) * 100, 2)}
         for word, count in word_count.items()
     ]
     word_df = pd.DataFrame(word_stats)
     
-    # Форматирование таблицы по буквам
+    #форматирование таблицы по буквам
     letter_stats = [
         {"Буква": letter, "Частота встреч в раз": count, "Частота встреч в %": round((count / total_letters) * 100, 2)}
         for letter, count in letter_count.items()
@@ -44,7 +44,7 @@ def analyze_text_from_docx(file_path):
     
     return word_df, letter_df
 
-# Функция для построения гистограммы частоты букв
+#построение гистограммы частоты букв
 def plot_letter_histogram(letter_df):
     plt.figure(figsize=(10, 6))
     plt.bar(letter_df["Буква"], letter_df["Частота встреч в %"], color="skyblue")
@@ -54,27 +54,78 @@ def plot_letter_histogram(letter_df):
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.show()
 
-# Функция для построения гистограммы частоты слов
+#построение гистограммы частоты слов
 def plot_word_histogram(word_df, top_n=10):
-    # Сортировка по частоте и выбор top_n слов
+    #сортировка по частоте и выбор top_n слов
     top_words = word_df.sort_values(by="Частота встреч в раз", ascending=False).head(top_n)
     
     plt.figure(figsize=(10, 6))
     plt.bar(top_words["Слово"], top_words["Частота встреч в раз"], color="lightgreen")
-    plt.xlabel("Слова", fontsize=12)
-    plt.ylabel("Частота встречаемости (раз)", fontsize=12)
-    plt.title(f"Топ-{top_n} наиболее частых слов", fontsize=14)
+    plt.xlabel("Слова")
+    plt.ylabel("Частота встречаемости (раз)")
+    plt.title(f"Топ-{top_n} наиболее частых слов")
     plt.xticks(rotation=45)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.grid(axis="y", linestyle="--")
     plt.show()
 
-# Основной код
-file_path = "lion.docx"  # Укажите имя вашего .docx файла
+file_path = "lion.docx" 
 word_df, letter_df = analyze_text_from_docx(file_path)
 
-# Построение гистограмм
+#построение гистограмм
 print("Построение гистограммы для букв...")
 plot_letter_histogram(letter_df)
 
 print("Построение гистограммы для слов...")
 plot_word_histogram(word_df, top_n=10)
+
+
+
+"""from docx import Document   варик без функций 
+import matplotlib.pyplot as plt
+from collections import Counter
+
+file_path = "example.docx"
+
+#читаем документ
+doc = Document(file_path)
+
+#извлекаем текст из всех абзацев
+text = " ".join([paragraph.text for paragraph in doc.paragraphs])
+
+#подсчёт слов
+words = text.split()
+word_count = len(words)
+
+#подсчёт букв
+letters = [char for char in text if char.isalpha()]
+letter_count = len(letters)
+
+#статистика слов
+word_frequency = Counter(words)
+
+#статистика букв
+letter_frequency = Counter(letters)
+
+#построение гистограммы по словам
+plt.figure(figsize=(10, 5))
+plt.bar(word_frequency.keys(), word_frequency.values(), color='skyblue')
+plt.title('Частота слов')
+plt.xlabel('Слова')
+plt.ylabel('Частота')
+plt.xticks(rotation=45, ha='right', fontsize=8)
+plt.tight_layout()
+plt.show()
+
+#построение гистограммы по буквам
+plt.figure(figsize=(10, 5))
+plt.bar(letter_frequency.keys(), letter_frequency.values(), color='lightgreen')
+plt.title('Частота букв')
+plt.xlabel('Буквы')
+plt.ylabel('Частота')
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.show()
+
+#вывод
+print(f"Количество слов: {word_count}")
+print(f"Количество букв: {letter_count}")"""
